@@ -1,77 +1,69 @@
 <template>
   <div id="app">
     <section class="todoapp">
-      <header class="header">
-        <h1>todos</h1>
-        <input class="new-todo"
-               autofocus autocomplete="off"
-               placeholder="What needs to be done?"
-               v-model="newTodo"
-               @keyup.enter="addTodo">
-      </header>
-      <section class="main" v-show="todos.length" v-cloak>
-        <input class="toggle-all" type="checkbox" v-model="allDone">
-        <ul class="todo-list">
-          <li v-for="todo in filteredTodos"
-              class="todo"
-              :key="todo.id"
-              :class="{ completed: todo.completed, editing: todo == editedTodo }">
-            <div class="view">
-              <input class="toggle" type="checkbox" v-model="todo.completed">
-              <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
-              <button class="destroy" @click="removeTodo(todo)"></button>
-            </div>
-            <input class="edit" type="text"
-                   v-model="todo.title"
-                   v-todo-focus="todo == editedTodo"
-                   @blur="doneEdit(todo)"
-                   @keyup.enter="doneEdit(todo)"
-                   @keyup.esc="cancelEdit(todo)">
-          </li>
-        </ul>
-      </section>
-      <footer class="footer" v-show="todos.length" v-cloak>
+      <div v-if="loading">
+        <h1>Loading...</h1>
+      </div>
+      <div v-else>
+        <header class="header">
+          <h1>Todos</h1>
+          <input class="new-todo"
+                 autofocus autocomplete="off"
+                 placeholder="What needs to be done?"
+                 v-model="newTodo"
+                 @keyup.enter="addTodo">
+        </header>
+        <section class="main" v-show="todos.length" v-cloak>
+          <input class="toggle-all" type="checkbox" v-model="allDone">
+          <ul class="todo-list">
+            <li v-for="todo in filteredTodos"
+                class="todo"
+                :key="todo.id"
+                :class="{ completed: todo.completed, editing: todo == editedTodo }">
+              <div class="view">
+                <input class="toggle" type="checkbox" v-model="todo.completed" @change="completeTodo(todo)">
+                <label @dblclick="editTodo(todo)">{{ todo.title }}</label>
+                <button class="destroy" @click="removeTodo(todo)"></button>
+              </div>
+              <input class="edit" type="text"
+                     v-model="todo.title"
+                     v-todo-focus="todo == editedTodo"
+                     @blur="doneEdit(todo)"
+                     @keyup.enter="doneEdit(todo)"
+                     @keyup.esc="cancelEdit(todo)">
+            </li>
+          </ul>
+        </section>
+        <footer class="footer" v-show="todos.length" v-cloak>
       <span class="todo-count">
         <strong>{{ remaining }}</strong> {{ remaining | pluralize }} left
       </span>
-        <ul class="filters">
-          <li><a href="#/all" @click="setVisibility('all')" :class="{ selected: visibility == 'all' }">All</a></li>
-          <li><a href="#/active" @click="setVisibility('active')" :class="{ selected: visibility == 'active' }">Active</a></li>
-          <li><a href="#/completed" @click="setVisibility('completed')" :class="{ selected: visibility == 'completed' }">Completed</a></li>
-        </ul>
-        <button class="clear-completed" @click="removeCompleted" v-show="todos.length > remaining">
-          Clear completed
-        </button>
-      </footer>
+          <ul class="filters">
+            <li><a href="#/all" @click="setVisibility('all')" :class="{ selected: visibility == 'all' }">All</a></li>
+            <li><a href="#/active" @click="setVisibility('active')" :class="{ selected: visibility == 'active' }">Active</a></li>
+            <li><a href="#/completed" @click="setVisibility('completed')" :class="{ selected: visibility == 'completed' }">Completed</a></li>
+          </ul>
+          <button class="clear-completed" @click="removeCompleted" v-show="todos.length > remaining">
+            Clear completed
+          </button>
+        </footer>
+      </div>
     </section>
+    <div v-if="error" class="error" @click="handleErrorClick">
+      ERROR: {{this.error}}
+    </div>
     <footer class="info">
       <p>Based on a project written by <a href="http://evanyou.me">Evan You</a></p>
-      <p>Originally part of <a href="http://todomvc.com">TodoMVC</a></p>
-      <p>Modified for Okta for Andrew Hughes</p>
+      <p>Original Vue TodoApp project is <a href="https://vuejs.org/v2/examples/todomvc.html">here</a></p>
+      <p>Modified for this tutorial by Andrew Hughes</p>
     </footer>
   </div>
 </template>
 
 <script>
 
-  // Full spec-compliant TodoMVC with localStorage persistence
-  // and hash-based routing in ~120 effective lines of JavaScript.
+  import api from './Api';
 
-  // localStorage persistence
-  let STORAGE_KEY = 'todos-vuejs-2.0'
-  let todoStorage = {
-    fetch: function () {
-      var todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-      todos.forEach(function (todo, index) {
-        todo.id = index
-      })
-      todoStorage.uid = todos.length
-      return todos
-    },
-    save: function (todos) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
-    }
-  }
 
   // visibility filters
   let filters = {
@@ -98,27 +90,26 @@
     // app initial state
     data: () => {
       return {
-        todos: todoStorage.fetch(),
+        todos: [],
         newTodo: '',
         editedTodo: null,
-        visibility: 'all'
+        visibility: 'all',
+        loading: true, // set loading to true initially
+        error: null
       }
     },
 
-    // watch todos change for localStorage persistence
-    watch: {
-      todos: {
-        handler: function (todos) {
-          todoStorage.save(todos)
-        },
-        deep: true
-      },
-      '$route': {
-        handler: (to) => {
-          alert(to)
-        }
-      }
-
+    mounted() {
+     api.getAll()
+        .then(response => {
+          this.$log.debug("Data loaded: ", response.data)
+          this.todos = response.data
+        })
+        .catch(error => {
+          this.$log.debug(error)
+          this.error = "Failed to load todos"
+        })
+        .finally(() => this.loading = false)
     },
 
     // computed properties
@@ -151,16 +142,27 @@
     // methods that implement data logic.
     // note there's no DOM manipulation here at all.
     methods: {
+      loadAll: function () {
+
+      },
       addTodo: function () {
         var value = this.newTodo && this.newTodo.trim()
         if (!value) {
           return
         }
-        this.todos.push({
-          id: todoStorage.uid++,
-          title: value,
-          completed: false
-        })
+
+        api.createNew(value, false).then( (response) => {
+          this.$log.debug("New item created:", response);
+          this.todos.push({
+            id: response.id,
+            title: value,
+            completed: false
+          })
+        }).catch((error) => {
+          this.$log.debug(error);
+          this.error = "Failed to add todo"
+        });
+
         this.newTodo = ''
       },
 
@@ -168,8 +170,24 @@
         this.visibility = vis
       },
 
-      removeTodo: function (todo) {
-        this.todos.splice(this.todos.indexOf(todo), 1)
+      completeTodo (todo) {
+        api.updateForId(todo.id, todo.title, todo.completed).then((response) => { // notice AM using "=>" syntax
+          this.$log.info("Item updated:", response.data);
+        }).catch((error) => {
+          this.$log.debug(error)
+          todo.completed = !todo.completed
+          this.error = "Failed to update todo"
+        });
+      },
+      removeTodo: function (todo) { // notice NOT using "=>" syntax
+        api.removeForId(todo.id).then(() => { // notice AM using "=>" syntax
+          this.$log.debug("Item removed:", todo);
+          this.todos.splice(this.todos.indexOf(todo), 1)
+        }).catch((error) => {
+          this.$log.debug(error);
+          this.error = "Failed to remove todo"
+        });
+
       },
 
       editTodo: function (todo) {
@@ -181,8 +199,17 @@
         if (!this.editedTodo) {
           return
         }
-        this.editedTodo = null
-        todo.title = todo.title.trim()
+        this.$log.info("Item updated:", todo);
+        api.updateForId(todo.id, todo.title.trim(), todo.completed).then((response) => { // notice AM using "=>" syntax
+          this.$log.info("Item updated:", response.data);
+          this.editedTodo = null
+          todo.title = todo.title.trim()
+        }).catch((error) => {
+          this.$log.debug(error)
+          this.cancelEdit(todo)
+          this.error = "Failed to update todo"
+        });
+
         if (!todo.title) {
           this.removeTodo(todo)
         }
@@ -195,6 +222,10 @@
 
       removeCompleted: function () {
         this.todos = filters.active(this.todos)
+      },
+
+      handleErrorClick: function () {
+        this.error = null;
       }
     },
 
@@ -216,6 +247,21 @@
 
 <style>
 
-[v-cloak] { display: none; }
+  [v-cloak] { display: none; }
+
+  body {
+    padding-top: 100px;
+  }
+
+  .error {
+    font-size: 24px;
+    font-weight: 400;
+    color:white;
+    text-align: center;
+    border: 1px solid darkred;
+    padding:10px;
+    background-color: #af5b5e;
+    border-radius: 5px;
+  }
 
 </style>
