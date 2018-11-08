@@ -1,5 +1,6 @@
 import Vue from 'vue'
-import App from './App.vue'
+import App from './App'
+import router from './router'
 
 Vue.config.productionTip = false
 
@@ -17,6 +18,11 @@ const options = {
 
 Vue.use(VueLogger, options);
 
+/* eslint-disable no-new */
 new Vue({
-  render: h => h(App)
-}).$mount('#app')
+  el: '#app',
+  router,
+  template: '<App/>',
+  components: { App }
+})
+
