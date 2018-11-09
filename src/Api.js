@@ -9,22 +9,16 @@ const instance = axios.create({
 });
 
 export default {
+  // (C)reate
+  createNew: (text, completed) => instance.post('todos', {title: text, completed: completed}),
+  // (R)ead
   getAll: () => instance.get('todos', {
     transformResponse: [function (data) {
       return data? JSON.parse(data)._embedded.todos : data;
     }]
   }),
-  getForId: (id) => instance.get('todos/'+id, {
-    transformResponse: [function (data) {
-      return data ? JSON.parse(data) : data;
-    }]
-  }),
-  removeForId: (id) => instance.delete('todos/'+id),
-  updateForId: (id, text, completed) => instance.put('todos/'+id, {title: text, completed: completed}, {
-    transformResponse: [function (data) {
-      return data ? JSON.parse(data) : data;
-    }]
-  }),
-  createNew: (text, completed) => instance.post('todos', {title: text, completed: completed})
+  // (U)pdate
+  updateForId: (id, text, completed) => instance.put('todos/'+id, {title: text, completed: completed}),
+  // (D)elete
+  removeForId: (id) => instance.delete('todos/'+id)
 }
-
