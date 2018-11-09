@@ -3,7 +3,7 @@
     <h1 class="title">Todos</h1>
     <h1 class="email">{{userEmail}}</h1>
     <section class="todoapp">
-      <div v-if="loading">
+      <div v-if="true">
         <h1 class="loading">Loading...</h1>
       </div>
       <div v-else>
