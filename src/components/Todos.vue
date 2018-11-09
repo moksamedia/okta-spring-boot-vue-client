@@ -78,9 +78,9 @@
   }
 
   // app Vue instance
-  const app = {
+  const Todos = {
 
-    name: 'app',
+    name: 'Todos',
 
     props: {
       activeUser: Object
@@ -89,12 +89,12 @@
     // app initial state
     data: function() {
       return {
-        todos: [],
+        todos: ['Get food'],
         userEmail: !this.activeUser ? '' : this.activeUser.email,
         newTodo: '',
         editedTodo: null,
         visibility: 'all',
-        loading: true, // set loading to true initially
+        loading: true,
         error: null,
         inputPlaceholder: !this.activeUser ? 'What needs to be done?' : this.activeUser.given_name + ', what needs to be done?'
       }
@@ -143,25 +143,16 @@
     // methods that implement data logic.
     // note there's no DOM manipulation here at all.
     methods: {
-      loadAll: function () {
 
-      },
       addTodo: function () {
         var value = this.newTodo && this.newTodo.trim()
         if (!value) {
           return
         }
 
-        api.createNew(value, false).then( (response) => {
-          this.$log.debug("New item created:", response);
-          this.todos.push({
-            id: response.data.id,
-            title: value,
-            completed: false
-          })
-        }).catch((error) => {
-          this.$log.debug(error);
-          this.error = "Failed to add todo"
+        this.todos.push({
+          title: value,
+          completed: false
         });
 
         this.newTodo = ''
@@ -172,23 +163,10 @@
       },
 
       completeTodo (todo) {
-        api.updateForId(todo.id, todo.title, todo.completed).then((response) => { // notice AM using "=>" syntax
-          this.$log.info("Item updated:", response.data);
-        }).catch((error) => {
-          this.$log.debug(error)
-          todo.completed = !todo.completed
-          this.error = "Failed to update todo"
-        });
       },
-      removeTodo: function (todo) { // notice NOT using "=>" syntax
-        api.removeForId(todo.id).then(() => { // notice AM using "=>" syntax
-          this.$log.debug("Item removed:", todo);
-          this.todos.splice(this.todos.indexOf(todo), 1)
-        }).catch((error) => {
-          this.$log.debug(error);
-          this.error = "Failed to remove todo"
-        });
 
+      removeTodo: function (todo) { // notice NOT using "=>" syntax
+        this.todos.splice(this.todos.indexOf(todo), 1)
       },
 
       editTodo: function (todo) {
@@ -200,16 +178,9 @@
         if (!this.editedTodo) {
           return
         }
-        this.$log.info("Item updated:", todo);
-        api.updateForId(todo.id, todo.title.trim(), todo.completed).then((response) => { // notice AM using "=>" syntax
-          this.$log.info("Item updated:", response.data);
-          this.editedTodo = null
-          todo.title = todo.title.trim()
-        }).catch((error) => {
-          this.$log.debug(error)
-          this.cancelEdit(todo)
-          this.error = "Failed to update todo"
-        });
+
+        this.editedTodo = null
+        todo.title = todo.title.trim()
 
         if (!todo.title) {
           this.removeTodo(todo)
@@ -243,7 +214,7 @@
     }
   }
 
-  export default app
+  export default Todos
 
 </script>
 
