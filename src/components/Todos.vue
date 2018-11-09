@@ -87,7 +87,7 @@
     // app initial state
     data: function() {
       return {
-        todos: ['Get food'],
+        todos: [],
         userEmail: !this.activeUser ? '' : this.activeUser.email,
         newTodo: '',
         editedTodo: null,
@@ -99,16 +99,10 @@
     },
 
     mounted() {
-      api.getAll()
-        .then(response => {
-          this.$log.debug("Data loaded: ", response.data)
-          this.todos = response.data
-        })
-        .catch(error => {
-          this.$log.debug(error)
-          this.error = "Failed to load todos"
-        })
-        .finally(() => this.loading = false)
+      // inject some startup data
+      this.todos = [{title: 'Drink coffee', completed:false},{title: 'Write REST API', completed:false}];
+      // hide the loading message
+      this.loading = false;
     },
 
     // computed properties
