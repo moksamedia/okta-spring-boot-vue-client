@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view />
+    <router-view :activeUser="activeUser"/>
     <footer class="info">
       <p v-if="activeUser" class="logout-link"><a @click="handleLogout" href="#">Logout</a></p>
       <p>Based on a project written by <a href="http://evanyou.me">Evan You</a></p>
@@ -55,13 +55,5 @@
 
   [v-cloak] { display: none; }
 
-  body {
-    padding-top: 100px;
-  }
-
-  .logout-link {
-    font-size: 18px;
-    text-decoration: underline;
-  }
 
 </style>

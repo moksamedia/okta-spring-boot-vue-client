@@ -1,15 +1,16 @@
 <template>
   <div>
+    <h1 class="title">Todos</h1>
+    <h1 class="email">{{userEmail}}</h1>
     <section class="todoapp">
       <div v-if="loading">
         <h1>Loading...</h1>
       </div>
       <div v-else>
         <header class="header">
-          <h1>Todos</h1>
           <input class="new-todo"
                  autofocus autocomplete="off"
-                 placeholder="What needs to be done?"
+                 :placeholder="this.inputPlaceholder"
                  v-model="newTodo"
                  @keyup.enter="addTodo">
         </header>
@@ -35,9 +36,9 @@
           </ul>
         </section>
         <footer class="footer" v-show="todos.length" v-cloak>
-      <span class="todo-count">
-        <strong>{{ remaining }}</strong> {{ remaining | pluralize }} left
-      </span>
+          <span class="todo-count">
+            <strong>{{ remaining }}</strong> {{ remaining | pluralize }} left
+          </span>
           <ul class="filters">
             <li><a href="#/all" @click="setVisibility('all')" :class="{ selected: visibility == 'all' }">All</a></li>
             <li><a href="#/active" @click="setVisibility('active')" :class="{ selected: visibility == 'active' }">Active</a></li>
@@ -81,20 +82,26 @@
 
     name: 'app',
 
+    props: {
+      activeUser: Object
+    },
+
     // app initial state
-    data: () => {
+    data: function() {
       return {
         todos: [],
+        userEmail: !this.activeUser ? '' : this.activeUser.email,
         newTodo: '',
         editedTodo: null,
         visibility: 'all',
         loading: true, // set loading to true initially
-        error: null
+        error: null,
+        inputPlaceholder: !this.activeUser ? 'What needs to be done?' : this.activeUser.given_name + ', what needs to be done?'
       }
     },
 
     mounted() {
-     api.getAll()
+      api.getAll()
         .then(response => {
           this.$log.debug("Data loaded: ", response.data)
           this.todos = response.data
@@ -243,20 +250,5 @@
 <style>
 
   [v-cloak] { display: none; }
-
-  body {
-    padding-top: 100px;
-  }
-
-  .error {
-    font-size: 24px;
-    font-weight: 400;
-    color:white;
-    text-align: center;
-    border: 1px solid darkred;
-    padding:10px;
-    background-color: #af5b5e;
-    border-radius: 5px;
-  }
 
 </style>
