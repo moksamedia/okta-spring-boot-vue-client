@@ -163,7 +163,7 @@
         api.createNew(value, false).then( (response) => {
           this.$log.debug("New item created:", response);
           this.todos.push({
-            id: response.id,
+            id: response.data.id,
             title: value,
             completed: false
           })
@@ -189,6 +189,7 @@
         });
       },
       removeTodo: function (todo) { // notice NOT using "=>" syntax
+        this.$log.debug("Item removed:", todo);
         api.removeForId(todo.id).then(() => { // notice AM using "=>" syntax
           this.$log.debug("Item removed:", todo);
           this.todos.splice(this.todos.indexOf(todo), 1)

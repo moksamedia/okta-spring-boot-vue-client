@@ -1,7 +1,7 @@
 import Auth from "@okta/okta-vue";
 import Vue from 'vue'
 import Router from 'vue-router'
-import Todos from '../components/Todos'
+import Todos from './components/Todos'
 
 Vue.use(Auth, {
   issuer: 'https://dev-533919.oktapreview.com/oauth2/default',
