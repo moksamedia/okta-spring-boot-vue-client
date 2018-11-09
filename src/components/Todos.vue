@@ -78,9 +78,9 @@
   }
 
   // app Vue instance
-  const app = {
+  const Todos = {
 
-    name: 'app',
+    name: 'Todos',
 
     props: {
       activeUser: Object
@@ -243,7 +243,7 @@
     }
   }
 
-  export default app
+  export default Todos
 
 </script>
 
