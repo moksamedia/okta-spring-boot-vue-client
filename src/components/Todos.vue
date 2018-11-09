@@ -4,7 +4,7 @@
     <h1 class="email">{{userEmail}}</h1>
     <section class="todoapp">
       <div v-if="loading">
-        <h1>Loading...</h1>
+        <h1 class="loading">Loading...</h1>
       </div>
       <div v-else>
         <header class="header">
