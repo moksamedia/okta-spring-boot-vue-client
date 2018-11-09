@@ -3,7 +3,7 @@
     <h1 class="title">Todos</h1>
     <h1 class="email">{{userEmail}}</h1>
     <section class="todoapp">
-      <div v-if="true">
+      <div v-if="loading">
         <h1 class="loading">Loading...</h1>
       </div>
       <div v-else>
@@ -57,8 +57,6 @@
 </template>
 
 <script>
-
-  import api from '../Api';
 
   // visibility filters
   let filters = {
