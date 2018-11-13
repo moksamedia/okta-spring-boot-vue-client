@@ -88,13 +88,13 @@
     data: function() {
       return {
         todos: [],
-        userEmail: !this.activeUser ? '' : this.activeUser.email,
+        userEmail: this.activeUser ? this.activeUser.email : '',
         newTodo: '',
         editedTodo: null,
         visibility: 'all',
         loading: true,
         error: null,
-        inputPlaceholder: !this.activeUser ? 'What needs to be done?' : this.activeUser.given_name + ', what needs to be done?'
+        inputPlaceholder: this.activeUser ? this.activeUser.given_name + ', what needs to be done?' : 'What needs to be done?'
       }
     },
 
