@@ -90,13 +90,11 @@
     data: function() {
       return {
         todos: [],
-        userEmail: this.activeUser ? this.activeUser.email : '',
         newTodo: '',
         editedTodo: null,
         visibility: 'all',
         loading: true, // set loading to true initially
         error: null,
-        inputPlaceholder: this.activeUser ? this.activeUser.given_name + ', what needs to be done?' : 'What needs to be done?'
       }
     },
 
@@ -131,6 +129,12 @@
             todo.completed = value
           })
         }
+      },
+      userEmail: function () {
+        return this.activeUser ? this.activeUser.email : ''
+      },
+      inputPlaceholder: function () {
+        return this.activeUser ? this.activeUser.given_name + ', what needs to be done?' : 'What needs to be done?'
       }
     },
 
